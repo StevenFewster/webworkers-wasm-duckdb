@@ -36,11 +36,12 @@ ng serve (COOP + COEP headers)
 
 ## Key files
 
-File| Purpose
-src/app/data.worker.ts| DuckDB init, OPFS open, NDJSON streaming ingestion, query dispatch
-src/app/app.ts| Component — Worker lifecycle, query orchestration, sort/filter logic
-src/app/app.html| Template — progress bar, 4 stat cards, filterable/sortable table
-ngsw-config.json| Service Worker caches app shell + DuckDB WASM assets
+| File | Purpose |
+|---|---|
+| `src/app/data.worker.ts` | DuckDB init, OPFS open, NDJSON streaming ingestion, query dispatch |
+| `src/app/app.ts` | Component — Worker lifecycle, query orchestration, sort/filter logic |
+| `src/app/app.html` | Template — progress bar, 4 stat cards, filterable/sortable table |
+| `ngsw-config.json` | Service Worker caches app shell + DuckDB WASM assets |
 
 OPFS persistence
 
