@@ -1,0 +1,120 @@
+<div class="shell">
+
+  <!-- ─── Header ─────────────────────────────────────────────────── -->
+  <header class="header">
+    <div class="header-left">
+      <span class="logo">◈</span>
+      <div>
+        <h1>Market Data Explorer</h1>
+        <p class="subtitle">DuckDB-WASM · Web Worker · Service Worker · OPFS</p>
+      </div>
+    </div>
+    <div class="header-badges">
+      @if (isIsolated) {
+        <span class="badge badge--green">Cross-Origin Isolated</span>
+      } @else {
+        <span class="badge badge--amber">No SharedArrayBuffer</span>
+      }
+      @if (status === 'ready' && isCached) {
+        <span class="badge badge--blue">OPFS Cache</span>
+      }
+    </div>
+  </header>
+
+  <!-- ─── Loading ─────────────────────────────────────────────────── -->
+  @if (status === 'initializing') {
+    <div class="stage stage--center">
+      <div class="spinner"></div>
+      <p class="stage-label">Initialising DuckDB-WASM…</p>
+    </div>
+  }
+
+  @if (status === 'loading') {
+    <div class="stage stage--center">
+      <p class="stage-label">
+        Streaming {{ n(loadedCount) }} / {{ n(totalCount) }} records
+      </p>
+      <div class="progress-track">
+        <div class="progress-fill" [style.width.%]="progress"></div>
+      </div>
+      <p class="progress-pct">{{ progress }}%</p>
+    </div>
+  }
+
+  <!-- ─── Error ────────────────────────────────────────────────────── -->
+  @if (status === 'error') {
+    <div class="stage stage--center">
+      <div class="error-box">
+        <p class="error-title">Something went wrong</p>
+        <pre class="error-msg">{{ errorMsg }}</pre>
+        <button class="btn btn--primary" (click)="reload()">Retry</button>
+      </div>
+    </div>
+  }
+
+  <!-- ─── Ready ────────────────────────────────────────────────────── -->
+  @if (status === 'ready' && stats) {
+
+    <!-- Stats cards -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <span class="stat-value">{{ n(stats.total_records) }}</span>
+        <span class="stat-label">Records</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value">{{ stats.unique_symbols }}</span>
+        <span class="stat-label">Symbols</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value">{{ c(stats.avg_price) }}</span>
+        <span class="stat-label">Avg Price</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value">{{ n(stats.total_volume) }}</span>
+        <span class="stat-label">Total Volume</span>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <input
+        class="filter-input"
+        type="text"
+        placeholder="Filter symbol…"
+        [(ngModel)]="filterText"
+        (ngModelChange)="applyFilter()"
+      />
+      <span class="result-count">{{ visibleRows.length }} symbols</span>
+      <button class="btn btn--ghost" (click)="reload()">⟳ Reload</button>
+    </div>
+
+    <!-- Table -->
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th (click)="toggleSort('symbol')">Symbol {{ sortIcon('symbol') }}</th>
+            <th class="num" (click)="toggleSort('count')">Records {{ sortIcon('count') }}</th>
+            <th class="num" (click)="toggleSort('avg_price')">Avg Price {{ sortIcon('avg_price') }}</th>
+            <th class="num" (click)="toggleSort('min_price')">Min {{ sortIcon('min_price') }}</th>
+            <th class="num" (click)="toggleSort('max_price')">Max {{ sortIcon('max_price') }}</th>
+            <th class="num" (click)="toggleSort('total_volume')">Total Volume {{ sortIcon('total_volume') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of visibleRows; track row.symbol) {
+            <tr>
+              <td class="symbol-cell">{{ row.symbol }}</td>
+              <td class="num">{{ n(row.count) }}</td>
+              <td class="num">{{ c(row.avg_price) }}</td>
+              <td class="num">{{ c(row.min_price) }}</td>
+              <td class="num">{{ c(row.max_price) }}</td>
+              <td class="num">{{ n(row.total_volume) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+</div>
